@@ -1,0 +1,6 @@
+### b2 列表
+GET http://127.0.0.1:9527/api/b2-list
+
+### b2 列出目录
+GET http://127.0.0.1:9527/api/b2?prefix=database/
+X-B2: e074509bb0f5873111d2c773c3f479d52b96dbce5ea7550853c4910fda8ac067

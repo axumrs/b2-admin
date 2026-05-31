@@ -1,0 +1,38 @@
+[package]
+name = "b2-admin"
+version = "0.1.0"
+edition = "2024"
+authors = ["axum中文网 <team@mail.axum.eu.org>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/axumrs/b2-admin"
+homepage = "https://axum.eu.org"
+description = "B2管理客户端"
+
+[dependencies]
+anyhow = "1.0.102"
+arc-swap = "1.9.1"
+axum = { version = "0.8.9", features = ["multipart"] }
+base64 = "0.22.1"
+chrono = { version = "0.4.44", features = ["serde"] }
+config = "0.15.23"
+file-format = "0.29.0"
+hex = "0.4.3"
+jsonwebtoken = { version = "10.4.0", features = ["aws_lc_rs"] }
+mime_guess = "2.0.5"
+num_cpus = "1.17.0"
+rand = "0.10.1"
+rust-embed = "8.11.0"
+rust-s3 = { version = "0.37.2", default-features = false, features = ["fail-on-err", "tags", "tokio-rustls-tls"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
+sha2 = "0.11.0"
+thiserror = "2.0.18"
+tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "time", "net"] }
+tokio-stream = "0.1.18"
+tokio-util = { version = "0.7.18", features = ["io"] }
+tower = "0.5.3"
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+validator = { version = "0.20.0", features = ["derive"] }
+xid = "1.1.1"
