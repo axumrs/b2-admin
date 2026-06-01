@@ -1,6 +1,13 @@
-import { $get } from "@/fetch";
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { useStateContext } from "@/contexts/StateContext";
+import { $get, $json_fetch } from "@/fetch";
+import {
+  useMutation,
+  useQuery,
+  type UseQueryResult,
+} from "@tanstack/react-query";
+import {
+  useStateContext,
+  type StateContextProps,
+} from "@/contexts/StateContext";
 import { useEffect } from "react";
 import { UnauthorizedException } from "@/types/errs";
 import { useNavigate } from "react-router-dom";
@@ -28,6 +35,25 @@ export default function useApi() {
       queryKey: ["b2-preview-text", prefix],
       queryFn: () => $get<string>(`/b2/preview-text`, { prefix }),
     });
+  const loginApi = (ctx: StateContextProps) => {
+    return useMutation({
+      mutationKey: ["login"],
+      onSuccess(data) {
+        const resp = data.data;
+        if (resp.code !== 0) {
+          ctx.$setErr(resp.msg);
+          setTimeout(() => ctx.$setErr(null), 3000);
+        } else {
+          ctx.$setAuth(resp.data);
+        }
+      },
+      mutationFn: (data: {
+        email: string;
+        password: string;
+        captcha: string;
+      }) => $json_fetch.post<ApiResponse<JwtAuth>>(`/auth/login`, data),
+    });
+  };
 
   return {
     listB2Api: (...args: Parameters<typeof listB2Api>) =>
@@ -38,6 +64,7 @@ export default function useApi() {
       $useApi(previewImageApi, ...args),
     previewTextApi: (...args: Parameters<typeof previewTextApi>) =>
       $useApi(previewTextApi, ...args),
+    loginApi,
   };
 }
 
@@ -45,10 +72,16 @@ function $useApi<T = any>(
   fn: (...args: any) => UseQueryResult<T>,
   ...args: Parameters<typeof fn>
 ) {
-  const ctx = useStateContext();
-  const nav = useNavigate();
   const result = fn(...args);
   const { error, isFetching } = result;
+  $useApiState(isFetching, error);
+
+  return { ...result };
+}
+function $useApiState(isFetching: boolean, error: any) {
+  const ctx = useStateContext();
+  const nav = useNavigate();
+
   useEffect(() => {
     ctx.$setLoading(isFetching);
   }, [isFetching]);
@@ -60,6 +93,15 @@ function $useApi<T = any>(
     }
     ctx.$setErr(error);
   }, [error]);
-
-  return { ...result };
 }
+// function $useMutationApi<T = any>(
+//   fn: (...args: any) => UseMutationResult<T>,
+//   ...args: Parameters<typeof fn>
+// ) {
+//   const result = fn(...args);
+//   const { error, isPending } = result;
+
+//   $useApiState(isPending, error);
+
+//   return { ...result };
+// }

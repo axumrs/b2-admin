@@ -2,6 +2,7 @@ import { LoadingIcon } from "@/components/Icons";
 import { FetchException, UnauthorizedException } from "@/types/errs";
 import React, { createContext, useContext, useState } from "react";
 import { toast } from "sonner";
+import { useSessionStorage } from "react-use";
 
 export type StateContextError =
   | UnauthorizedException
@@ -17,6 +18,10 @@ export type StateContextProps = {
   $setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   $msg: string | null;
   $setMsg: React.Dispatch<React.SetStateAction<string | null>>;
+  $auth: JwtAuth | null;
+  $setAuth: (auth: JwtAuth | null) => void;
+  $b2: B2Lite | null;
+  $setB2: (b2: B2Lite | null) => void;
 };
 
 export const DefaultStateContextProps: StateContextProps = {
@@ -26,6 +31,10 @@ export const DefaultStateContextProps: StateContextProps = {
   $setLoading: () => {},
   $msg: null,
   $setMsg: () => {},
+  $auth: null,
+  $setAuth: () => {},
+  $b2: null,
+  $setB2: () => {},
 };
 
 export const StateContext = createContext<StateContextProps>({
@@ -40,6 +49,8 @@ export default function StateContextProvider({
   const [_err, _setErr] = useState<StateContextError>(null);
   const [_loading, _setLoading] = useState<boolean>(false);
   const [_msg, _setMsg] = useState<string | null>(null);
+  const [_auth, _setAuth] = useSessionStorage<JwtAuth | null>("auth");
+  const [_b2, _setB2] = useSessionStorage<B2Lite | null>("b2");
 
   if (_err) {
     if (_err instanceof UnauthorizedException) {
@@ -64,6 +75,10 @@ export default function StateContextProvider({
         $setLoading: _setLoading,
         $msg: _msg,
         $setMsg: _setMsg,
+        $auth: _auth,
+        $setAuth: _setAuth,
+        $b2: _b2,
+        $setB2: _setB2,
       }}
     >
       {_loading && (

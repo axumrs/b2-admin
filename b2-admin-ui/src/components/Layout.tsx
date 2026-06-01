@@ -9,8 +9,23 @@ import {
 } from "@/components/ui/navigation-menu";
 import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button";
+import { useStateContext } from "@/contexts/StateContext";
+import { Navigate } from "react-router-dom";
+
+import SelectB2Dialog from "./SelectB2";
 
 export default function Layout() {
+  const { $auth, $b2 } = useStateContext();
+  if (!$auth) {
+    return <Navigate to="/login" />;
+  }
+  if (!$b2) {
+    return (
+      <SelectB2Dialog show>
+        <></>
+      </SelectB2Dialog>
+    );
+  }
   return (
     <>
       <header className="p-3 border-b">
@@ -42,9 +57,9 @@ export default function Layout() {
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <Button variant="ghost" asChild>
-                      <Link to="/select-b2">B2桶</Link>
-                    </Button>
+                    <SelectB2Dialog>
+                      <Button variant="ghost">B2</Button>
+                    </SelectB2Dialog>
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>

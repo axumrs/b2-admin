@@ -18,6 +18,9 @@ import Turnstile from "./Turnstile";
 import { useForm } from "@tanstack/react-form";
 
 import * as z from "zod";
+import useApi from "@/api/useApi";
+import { useEffect, useMemo, useState } from "react";
+import { useStateContext } from "@/contexts/StateContext";
 
 const formSchema = z.object({
   email: z.email("请输入正确的邮箱"),
@@ -29,6 +32,14 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { loginApi } = useApi();
+  const ctx = useStateContext();
+  const loginMutation = loginApi(ctx);
+  const loginResp = useMemo(
+    () => loginMutation.data?.data,
+    [loginMutation.data],
+  );
+
   const form = useForm({
     defaultValues: {
       email: "",
@@ -39,9 +50,22 @@ export function LoginForm({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      console.log("login submit", value);
+      loginMutation.mutate(value);
     },
   });
+
+  // useEffect(() => {
+  //   $setLoading(loginMutation.isPending);
+  // }, [loginMutation.isPending]);
+  // useEffect(() => {
+  //   if (!loginResp) return;
+  //   if (loginResp.code !== 0) {
+  //     $setErr(loginResp.msg || null);
+  //     return;
+  //   }
+  // }, [loginResp]);
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>

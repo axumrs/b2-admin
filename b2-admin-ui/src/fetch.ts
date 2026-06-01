@@ -5,16 +5,19 @@ import axios, {
 import { FetchException, UnauthorizedException } from "./types/errs";
 
 const defineConfig = (config: InternalAxiosRequestConfig) => {
-  const token = sessionStorage.getItem("token");
+  const authStr = sessionStorage.getItem("auth");
+  const auth =
+    authStr === "undefined"
+      ? undefined
+      : (JSON.parse(authStr || "") as JwtAuth);
   const selectedB2Str = sessionStorage.getItem("b2");
   const selectedB2 =
     selectedB2Str === "undefined"
       ? undefined
       : (JSON.parse(selectedB2Str || "") as B2Lite);
-  config.headers["X-B2"] =
-    selectedB2?.hash ||
-    "e074509bb0f5873111d2c773c3f479d52b96dbce5ea7550853c4910fda8ac067";
-  config.headers.Authorization = token ? `Bearer ${token}` : undefined;
+  config.headers["X-B2"] = selectedB2?.hash;
+  config.headers.Authorization = auth ? `Bearer ${auth.token}` : undefined;
+  config.headers["X-NONCE"] = auth ? `${auth.nonce}` : undefined;
   return config;
 };
 

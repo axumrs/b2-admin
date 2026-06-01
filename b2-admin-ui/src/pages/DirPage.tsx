@@ -37,8 +37,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useState, lazy } from "react";
+import { useState, lazy, useEffect } from "react";
 import UploadDialog from "@/components/Upload";
+import { useStateContext } from "@/contexts/StateContext";
 const PreviewDialog = lazy(() => import("@/components/PreviewDialog"));
 const DownloadDialog = lazy(() => import("@/components/Download"));
 
@@ -46,8 +47,16 @@ export default function DirPage() {
   const [sp, _] = useSearchParams();
   const prefix = sp.get("prefix") || "";
 
+  const { $b2 } = useStateContext();
+
   const { dirB2Api } = useApi();
   const { data, refetch } = dirB2Api(prefix);
+
+  useEffect(() => {
+    if ($b2) {
+      refetch();
+    }
+  }, [$b2]);
 
   return (
     <>

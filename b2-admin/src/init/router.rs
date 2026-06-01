@@ -10,7 +10,7 @@ use crate::{ArcAppState, handler, mw};
 pub fn init(state: ArcAppState) -> Router {
     Router::new()
         .nest("/api", api_init(state.clone()))
-        .nest("/auth", auth_init(state.clone()))
+        .nest("/api/auth", auth_init(state.clone()))
         .layer(DefaultBodyLimit::max(10 * 1024 * 1024))
 }
 

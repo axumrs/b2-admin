@@ -12,3 +12,8 @@ type ApiUpload = {
   chunk_len: number;
   is_last_chunk: boolean;
 };
+
+type JwtAuth = {
+  token: string;
+  nonce: string;
+};
