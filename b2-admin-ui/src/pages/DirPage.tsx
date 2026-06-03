@@ -59,26 +59,30 @@ export default function DirPage() {
 
   const [delFile, setDelFile] = useState<B2File | null>(null);
   const [delDir, setDelDir] = useState<B2Dir | null>(null);
+  const [delFileActioning, setDelFileActioning] = useState<boolean>(false);
+  const [delDirActioning, setDelDirActioning] = useState<boolean>(false);
 
   const delObjMutation = delObjApi(ctx, () => {
     setDelFile(null);
+    setDelFileActioning(false);
     queryClient.invalidateQueries({ queryKey: ["b2-dir", prefix] });
   });
 
   const delDirMutation = delDirApi(ctx, () => {
     setDelDir(null);
+    setDelDirActioning(false);
     queryClient.invalidateQueries({ queryKey: ["b2-dir", prefix] });
   });
 
   const delObjHandler = () => {
     if (delFile) {
-      ctx.$setLoading(true);
+      setDelFileActioning(true);
       delObjMutation.mutate(delFile.path);
     }
   };
   const delDirHandler = () => {
     if (delDir) {
-      ctx.$setLoading(true);
+      setDelDirActioning(true);
       delDirMutation.mutate(delDir.path);
     }
   };
@@ -181,6 +185,7 @@ export default function DirPage() {
         itemName={delFile?.name}
         onCancel={() => setDelFile(null)}
         onAction={() => delObjHandler()}
+        actioning={delFileActioning}
       >
         <button className="hidden">删除文件</button>
       </ConfirmDelete>
@@ -189,6 +194,7 @@ export default function DirPage() {
         itemName={delDir?.name}
         onCancel={() => setDelDir(null)}
         onAction={() => delDirHandler()}
+        actioning={delDirActioning}
       >
         <button className="hidden">删除目录</button>
       </ConfirmDelete>

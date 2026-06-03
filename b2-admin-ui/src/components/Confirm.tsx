@@ -10,6 +10,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import React from "react";
+import { LoadingIcon } from "@/components/Icons";
 
 export function Confirm({
   title,
@@ -20,6 +21,7 @@ export function Confirm({
   onCancel,
   actionText = "确定",
   onAction,
+  actioning,
   ...props
 }: React.ComponentProps<typeof AlertDialog> & {
   title?: string;
@@ -29,6 +31,8 @@ export function Confirm({
   onCancel?: () => void;
   actionText?: string;
   onAction?: () => void;
+
+  actioning?: boolean;
 }) {
   return (
     <AlertDialog {...props}>
@@ -51,7 +55,9 @@ export function Confirm({
             onClick={() => {
               onAction?.();
             }}
+            disabled={actioning}
           >
+            {actioning && <LoadingIcon className="animate-spin" />}
             {actionText}
           </AlertDialogAction>
         </AlertDialogFooter>

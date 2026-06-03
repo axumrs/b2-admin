@@ -174,7 +174,6 @@ async fn _list(b2: Arc<B2>, prefix: impl Into<String>) -> Result<Vec<model::Dir>
 async fn _del(b2: Arc<B2>, prefix: impl Into<String>) -> Result<u16> {
     let prefix = prefix.into();
     assert!(!(prefix.is_empty() || prefix == "/"));
-    tracing::debug!("delete b2 object: {prefix}");
 
     let resp = b2.delete_object(&prefix).await?;
 
