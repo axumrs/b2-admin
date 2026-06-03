@@ -15,6 +15,7 @@ pub fn init(state: ArcAppState) -> Router {
         .layer(DefaultBodyLimit::max(
             state.cfg.b2_action.upload.max_size as usize,
         ))
+        .fallback(handler::static_file::static_handler)
 }
 
 fn api_init(state: ArcAppState) -> Router {

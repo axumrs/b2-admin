@@ -1,3 +1,4 @@
+pub mod asset;
 pub mod b2;
 mod cfg;
 mod err;

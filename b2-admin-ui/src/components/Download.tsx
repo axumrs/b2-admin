@@ -34,7 +34,7 @@ export function Download({
 
   useEffect(() => {
     if (isCompleted) {
-      // onCompleted?.();
+      onCompleted?.();
     }
   }, [isCompleted]);
 

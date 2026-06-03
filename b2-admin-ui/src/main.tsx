@@ -30,16 +30,17 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById("root")!).render(
-  // <StrictMode>
-  <ThemeProvider defaultTheme="light" storageKey="b2-admin-ui-theme">
-    <StateContextProvider {...DefaultStateContextProps}>
-      <TooltipProvider>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <Toaster />
-        </QueryClientProvider>
-      </TooltipProvider>
-    </StateContextProvider>
-  </ThemeProvider>,
-  // </StrictMode>,
+  <StrictMode>
+    <ThemeProvider defaultTheme="light" storageKey="b2-admin-ui-theme">
+      <StateContextProvider {...DefaultStateContextProps}>
+        <TooltipProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <Toaster />
+          </QueryClientProvider>
+        </TooltipProvider>
+      </StateContextProvider>
+    </ThemeProvider>
+    ,
+  </StrictMode>,
 );
