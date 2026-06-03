@@ -14,6 +14,8 @@ async fn async_main() -> anyhow::Result<()> {
     let cfg = Config::from_toml()?.to_arc();
     init::log(&cfg.log);
 
+    mkdir(&cfg).await;
+
     let web_addr = cfg.web_addr.clone();
     let listener = TcpListener::bind(&web_addr).await?;
 
@@ -26,6 +28,20 @@ async fn async_main() -> anyhow::Result<()> {
     tracing::info!("服务监听于：{web_addr}");
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+async fn mkdir(cfg: &Config) {
+    let update_tmp_dir = cfg.b2_action.upload_tmp_dir();
+    let upload_tmp_part_dir = cfg.b2_action.upload_tmp_part_dir();
+    let down_tmp_dir = cfg.b2_action.download_tmp_dir();
+    let preview_tmp_dir = cfg.b2_action.preview_tmp_dir();
+
+    tokio::fs::create_dir_all(&update_tmp_dir).await.unwrap();
+    tokio::fs::create_dir_all(&upload_tmp_part_dir)
+        .await
+        .unwrap();
+    tokio::fs::create_dir_all(&down_tmp_dir).await.unwrap();
+    tokio::fs::create_dir_all(&preview_tmp_dir).await.unwrap();
 }
 
 #[cfg(test)]

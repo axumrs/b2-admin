@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct Config {
     pub log: String,
     pub web_addr: String,
+    pub body_limit: usize,
     pub b2s: Vec<B2Config>,
     pub jwt: JwtConfig,
     pub b2_action: B2ActionConfig,
@@ -31,6 +32,7 @@ pub struct JwtConfig {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct B2ActionConfig {
     pub root_tmp_dir: String,
+    pub delete_enable: bool,
     pub upload: B2ActionUploadConfig,
     pub download: B2ActionDownloadConfig,
     pub preview: B2ActionPreviewConfig,
@@ -60,6 +62,8 @@ impl B2ActionConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct B2ActionUploadConfig {
+    pub enable: bool,
+    pub chunk_size: u64,
     pub max_size: u64,
     pub tmp_dir: String,
     pub tmp_part_dir: String,
@@ -75,6 +79,8 @@ impl B2ActionUploadConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct B2ActionDownloadConfig {
+    pub enable: bool,
+    pub chunk_size: u64,
     pub max_size: u64,
     pub tmp_dir: String,
 }
@@ -87,6 +93,8 @@ impl B2ActionDownloadConfig {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct B2ActionPreviewConfig {
+    pub text_enable: bool,
+    pub image_enable: bool,
     pub text_max_size: u64,
     pub image_max_size: u64,
     pub tmp_dir: String,
@@ -107,7 +115,10 @@ pub struct AdminConfig {
 impl Config {
     pub fn from_toml() -> anyhow::Result<Self> {
         ::config::Config::builder()
-            .add_source(::config::File::with_name("b2-admin"))
+            .add_source(::config::File::new(
+                "b2-admin.toml",
+                ::config::FileFormat::Toml,
+            ))
             .build()?
             .try_deserialize()
             .map_err(From::from)

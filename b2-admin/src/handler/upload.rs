@@ -26,6 +26,10 @@ pub async fn handler(
     State(state): State<crate::ArcAppState>,
     mut multipart: Multipart,
 ) -> crate::Result<Json<resp::Resp<UploadResp>>> {
+    if !state.cfg.b2_action.upload.enable {
+        return Err(Error::Forbidden("已关闭上传".into()));
+    }
+
     let mut chunk_index = 0usize;
     let mut total_chunks = 0usize;
     let mut file_id = String::new();

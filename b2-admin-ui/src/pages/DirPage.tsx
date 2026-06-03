@@ -52,7 +52,7 @@ export default function DirPage() {
   const queryClient = useQueryClient();
 
   const ctx = useStateContext();
-  const { $b2 } = ctx;
+  const { $b2, $cfg } = ctx;
 
   const { dirB2Api, delObjApi, delDirApi } = useApi();
   const { data, refetch } = dirB2Api(prefix);
@@ -137,7 +137,7 @@ export default function DirPage() {
                 <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>
-                  <DirDownMenu b2dir={dir} setDelItem={setDelDir}>
+                  <DirDownMenu b2dir={dir} setDelItem={setDelDir} cfg={$cfg}>
                     <Button variant="ghost">
                       <MoreIcon />
                     </Button>
@@ -152,7 +152,11 @@ export default function DirPage() {
                 <TableCell>
                   <div className="flex items-center gap-x-1">
                     <GuessFileIcon mime={file.mime} className="size-4" />
-                    <FileDownMenu file={file} setDelItem={setDelFile}>
+                    <FileDownMenu
+                      file={file}
+                      setDelItem={setDelFile}
+                      cfg={$cfg}
+                    >
                       <button className="outline-0">{file.name}</button>
                     </FileDownMenu>
                   </div>
@@ -168,7 +172,7 @@ export default function DirPage() {
                 </TableCell>
                 <TableCell>{formatDateTime(file.last_modified)}</TableCell>
                 <TableCell>
-                  <FileDownMenu file={file} setDelItem={setDelFile}>
+                  <FileDownMenu file={file} setDelItem={setDelFile} cfg={$cfg}>
                     <Button variant="ghost">
                       <MoreIcon />
                     </Button>
@@ -232,10 +236,13 @@ function FileDownMenu({
   file,
   children,
   setDelItem,
+  cfg,
 }: { file: B2File } & React.ComponentProps<typeof DropdownMenu> & {
     setDelItem: (item: B2File) => void;
+    cfg: ApiConfig | null;
   }) {
   const [open, setOpen] = useState(false);
+
   return (
     <DropdownMenu open={open} onOpenChange={(o) => setOpen(o)}>
       <DropdownMenuTrigger asChild>{children}</DropdownMenuTrigger>
@@ -276,6 +283,7 @@ function FileDownMenu({
         <DropdownMenuGroup>
           <DropdownMenuItem
             variant="destructive"
+            disabled={cfg?.delete_enable !== true}
             onClick={() => {
               setDelItem(file);
             }}
@@ -292,8 +300,10 @@ function DirDownMenu({
   b2dir,
   children,
   setDelItem,
+  cfg,
 }: { b2dir: B2Dir } & React.ComponentProps<typeof DropdownMenu> & {
     setDelItem: (item: B2Dir) => void;
+    cfg: ApiConfig | null;
   }) {
   const [open, setOpen] = useState(false);
   return (
@@ -318,6 +328,7 @@ function DirDownMenu({
           <DropdownMenuItem
             variant="destructive"
             onClick={() => setDelItem(b2dir)}
+            disabled={cfg?.delete_enable !== true}
           >
             <DeleteIcon />
             删除目录

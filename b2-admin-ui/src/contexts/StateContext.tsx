@@ -22,6 +22,8 @@ export type StateContextProps = {
   $setAuth: (auth: JwtAuth | null) => void;
   $b2: B2Lite | null;
   $setB2: (b2: B2Lite | null) => void;
+  $cfg: ApiConfig | null;
+  $setCfg: (cfg: ApiConfig | null) => void;
 };
 
 export const DefaultStateContextProps: StateContextProps = {
@@ -35,6 +37,8 @@ export const DefaultStateContextProps: StateContextProps = {
   $setAuth: () => {},
   $b2: null,
   $setB2: () => {},
+  $cfg: null,
+  $setCfg: () => {},
 };
 
 export const StateContext = createContext<StateContextProps>({
@@ -51,6 +55,7 @@ export default function StateContextProvider({
   const [_msg, _setMsg] = useState<string | null>(null);
   const [_auth, _setAuth] = useSessionStorage<JwtAuth | null>("auth");
   const [_b2, _setB2] = useSessionStorage<B2Lite | null>("b2");
+  const [_cfg, _setCfg] = useSessionStorage<ApiConfig | null>("cfg");
 
   if (_err) {
     if (_err instanceof UnauthorizedException) {
@@ -79,6 +84,8 @@ export default function StateContextProvider({
         $setAuth: _setAuth,
         $b2: _b2,
         $setB2: _setB2,
+        $cfg: _cfg,
+        $setCfg: _setCfg,
       }}
     >
       {_loading && (

@@ -10,6 +10,7 @@ import {
   FileCode as FileCodeIcon,
   FileArchive as FileArchiveIcon,
   Eye as PreviewIcon,
+  EyeOff as PreviewOffIcon,
   Trash2 as DeleteIcon,
   Download as DownloadIcon,
   Ellipsis as MoreIcon,
@@ -38,4 +39,5 @@ export {
   UploadIcon,
   LogoutIcon,
   BucketIcon,
+  PreviewOffIcon,
 };

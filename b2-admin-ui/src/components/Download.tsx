@@ -13,15 +13,18 @@ import { DialogErrorAlert } from "./DialogAlert";
 import { FetchException, UnauthorizedException } from "@/types/errs";
 import { useStateContext } from "@/contexts/StateContext";
 import { useNavigate } from "react-router-dom";
+import { DownloadIcon } from "@/components/Icons";
 
 export function Download({
   prefix,
   name,
   onCompleted,
+  cfg,
 }: {
   prefix: string;
   name: string;
   onCompleted?: () => void;
+  cfg?: ApiConfig;
 }) {
   const [progress, setProgress] = useState(0);
   const [errMsg, setErrMsg] = useState<string | null>(null);
@@ -77,8 +80,18 @@ export function Download({
     }
   };
   const downloadInChunks = async () => {
+    if (!cfg) {
+      setErrMsg("配置文件不存在");
+      return;
+    }
+
+    if (!cfg.download_enable) {
+      setErrMsg("下载已关闭");
+      return;
+    }
+
     const url = `/api/b2/download?prefix=${prefix}`; // 对应你的 Axum 路由
-    const chunkSize = 5 * 1024 * 1024; // 5MB
+    const chunkSize = cfg.download_chunk_size || 5 * 1024 * 1024; // 5MB
 
     try {
       // 1. 获取文件总大小
@@ -180,6 +193,7 @@ export default function DownloadDialog({
   onClose?: () => void;
 } & React.ComponentProps<typeof Download>) {
   const [open, setOpen] = useState(false);
+  const { $cfg } = useStateContext();
   return (
     <Dialog
       open={open}
@@ -190,13 +204,26 @@ export default function DownloadDialog({
         }
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        {$cfg?.download_enable === true ? (
+          children
+        ) : (
+          <div className="text-sm flex items-center gap-x-2 px-1.5 py-1 text-muted-foreground line-through">
+            <DownloadIcon className="size-4" />
+            下载
+          </div>
+        )}
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>文件下载</DialogTitle>
           <DialogDescription asChild>
             <div className="my-3">
-              <Download {...props} onCompleted={() => setOpen(false)} />
+              <Download
+                {...props}
+                onCompleted={() => setOpen(false)}
+                cfg={$cfg!}
+              />
             </div>
           </DialogDescription>
         </DialogHeader>

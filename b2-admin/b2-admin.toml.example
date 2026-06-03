@@ -1,5 +1,6 @@
 log = "b2_admin=debug"
 web_addr = "0.0.0.0:9527"
+body_limit = 10485760
 
 [[b2s]]
 name = "存储桶1"
@@ -21,20 +22,28 @@ expire = 3600
 
 [b2_action]
 root_tmp_dir = "/tmp/b2-admin"
+delete_enable = true
 
 [b2_action.upload]
+enable = true
+chunk_size = 1048576
 max_size = 10485760
 tmp_dir = "upload"
 tmp_part_dir = "upload/parts"
 
 [b2_action.download]
+enable = true
+chunk_size = 1048576
 max_size = 10485760
 tmp_dir = "download"
 
 [b2_action.preview]
+text_enable = true
+image_enable = true
 text_max_size = 1048576
 image_max_size = 1048576
 tmp_dir = "preview"
+
 
 [admin]
 email = "team@mail.axum.eu.org"

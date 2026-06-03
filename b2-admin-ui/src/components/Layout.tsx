@@ -17,7 +17,7 @@ import { Confirm } from "./Confirm";
 
 export default function Layout() {
   const nav = useNavigate();
-  const { $auth, $b2, $setAuth } = useStateContext();
+  const { $auth, $b2, $setAuth, $setB2, $setCfg } = useStateContext();
   if (!$auth) {
     return <Navigate to="/login" />;
   }
@@ -92,7 +92,11 @@ export default function Layout() {
                   <Confirm
                     title="退出登录"
                     description="确认退出本次登录吗？"
-                    onAction={() => $setAuth(null)}
+                    onAction={() => {
+                      $setAuth(null);
+                      $setB2(null);
+                      $setCfg(null);
+                    }}
                   >
                     <Button variant="ghost" size="icon">
                       <LogoutIcon />

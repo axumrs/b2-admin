@@ -41,6 +41,5 @@ createRoot(document.getElementById("root")!).render(
         </TooltipProvider>
       </StateContextProvider>
     </ThemeProvider>
-    ,
   </StrictMode>,
 );

@@ -20,6 +20,10 @@ pub async fn handler(
     Query(q): Query<payload::b2::FileQuery>,
     r: Request,
 ) -> Result<impl IntoResponse> {
+    if !state.cfg.b2_action.download.enable {
+        return Err(Error::Forbidden("已关闭下载".into()));
+    }
+
     let prefix = q.prefix();
     // 从请求头中获取B2的ID
     let (head_obj, _) = b2.head_object(&prefix).await?;

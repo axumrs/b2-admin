@@ -31,6 +31,9 @@ pub enum Error {
     #[error("{0}")]
     Unauthorized(String),
 
+    #[error("{0}")]
+    Forbidden(String),
+
     #[error("验证错误")]
     Validate(#[from] validator::ValidationErrors),
 
@@ -46,6 +49,7 @@ impl Error {
         match self {
             Self::InvalidRequest(_) => http::StatusCode::BAD_REQUEST,
             Self::Unauthorized(_) | Self::Jwt(_) => http::StatusCode::UNAUTHORIZED,
+            Self::Forbidden(_) => http::StatusCode::FORBIDDEN,
             _ => http::StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

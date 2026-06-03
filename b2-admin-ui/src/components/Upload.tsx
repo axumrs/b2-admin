@@ -15,12 +15,15 @@ import { Input } from "@/components/ui/input";
 import { nanoid } from "nanoid";
 import { DialogErrorAlert, DialogSuccessAlert } from "./DialogAlert";
 import { $json_fetch } from "@/fetch";
+import { useStateContext } from "@/contexts/StateContext";
 
 export function Upload({
   defaultPrefix = "",
+  cfg,
 }: {
   defaultPrefix?: string;
   onCompleted?: () => void;
+  cfg?: ApiConfig;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
@@ -30,8 +33,22 @@ export function Upload({
   const [prefix, setPrefix] = useState(defaultPrefix);
   const handleUpload = async () => {
     if (!file) return;
+    if (!cfg) {
+      setErrMsg("配置文件不存在");
+      return;
+    }
 
-    const chunkSize = 1 * 1024; // 1kb 每块
+    if (!cfg.upload_enable) {
+      setErrMsg("上传已关闭");
+      return;
+    }
+
+    if (file.size > cfg.upload_max_size) {
+      setErrMsg(`文件大小超出限制`);
+      return;
+    }
+
+    const chunkSize = cfg.upload_chunk_size || 1 * 1024 * 1024; // 1kb 每块
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileId = nanoid(); // 生成唯一标识符
 
@@ -137,6 +154,7 @@ export default function UploadDialog({
   onClose?: () => void;
 } & React.ComponentProps<typeof Upload>) {
   const [open, setOpen] = useState(false);
+  const { $cfg } = useStateContext();
   return (
     <Dialog
       open={open}
@@ -147,13 +165,26 @@ export default function UploadDialog({
         }
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogTrigger asChild>
+        {$cfg?.upload_enable === true ? (
+          children
+        ) : (
+          <Button disabled>
+            <UploadIcon className="size-4" />
+            上传
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>文件上传</DialogTitle>
           <DialogDescription asChild>
             <div className="my-3">
-              <Upload {...props} onCompleted={() => setOpen(false)} />
+              <Upload
+                cfg={$cfg!}
+                {...props}
+                onCompleted={() => setOpen(false)}
+              />
             </div>
           </DialogDescription>
         </DialogHeader>

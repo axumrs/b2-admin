@@ -28,6 +28,9 @@ pub async fn preview_text_file(
     State(state): State<ArcAppState>,
     Query(q): Query<payload::b2::FileQuery>,
 ) -> Result<Json<resp::Resp<String>>> {
+    if !state.cfg.b2_action.preview.text_enable {
+        return Err(Error::Forbidden("未开启文件预览".into()));
+    }
     let prefix = q.prefix();
     let mime = mime_guess::from_path(&prefix)
         .first_or_octet_stream()
@@ -56,6 +59,9 @@ pub async fn preview_image_file(
     State(state): State<ArcAppState>,
     Query(q): Query<payload::b2::FileQuery>,
 ) -> Result<Json<resp::Resp<String>>> {
+    if !state.cfg.b2_action.preview.image_enable {
+        return Err(Error::Forbidden("未开启图片预览".into()));
+    }
     let prefix = q.prefix();
     let mime = mime_guess::from_path(&prefix)
         .first_or_octet_stream()
@@ -81,16 +87,25 @@ pub async fn preview_image_file(
 
 pub async fn del(
     B2Get(b2, _): B2Get,
+    State(state): State<ArcAppState>,
     Query(q): Query<payload::b2::FileQuery>,
 ) -> Result<Json<resp::Resp<u16>>> {
+    if !state.cfg.b2_action.delete_enable {
+        return Err(Error::Forbidden("已关闭删除功能".into()));
+    }
     let r = _del(b2, q.prefix()).await?;
     Ok(resp::ok(r).to_json())
 }
 
 pub async fn del_dir(
     B2Get(b2, _): B2Get,
+    State(state): State<ArcAppState>,
     Query(q): Query<payload::b2::FileQuery>,
 ) -> Result<Json<resp::Resp<usize>>> {
+    if !state.cfg.b2_action.delete_enable {
+        return Err(Error::Forbidden("已关闭删除功能".into()));
+    }
+
     let prefix = q.prefix();
     assert!(!(prefix.is_empty() || prefix == "/"));
 
