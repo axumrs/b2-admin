@@ -22,7 +22,7 @@ export default function Layout() {
   if (!$b2) {
     return (
       <SelectB2Dialog show>
-        <></>
+        <button className="hidden">选择B2</button>
       </SelectB2Dialog>
     );
   }

@@ -23,6 +23,7 @@ export function SelectB2({
   const { listB2Api } = useApi();
   const { data: b2List } = listB2Api();
   const { $setB2, $b2 } = useStateContext();
+  const [selectedB2, setSelectedB2] = useState<B2Lite | null>($b2);
 
   return (
     <div className="space-y-6">
@@ -32,13 +33,15 @@ export function SelectB2({
           <li key={item.hash}>
             <Toggle
               value={item.hash}
-              pressed={$b2?.hash === item.hash}
+              pressed={selectedB2?.hash === item.hash}
               onPressedChange={() => {
-                $setB2(item);
+                setSelectedB2(item);
               }}
             >
               {item.name}
-              {$b2?.hash === item.hash && <CheckIcon />}
+              {selectedB2?.hash === item.hash && (
+                <CheckIcon className="text-green-600" />
+              )}
             </Toggle>
           </li>
         ))}
@@ -46,6 +49,7 @@ export function SelectB2({
       <div
         className="flex justify-end"
         onClick={() => {
+          $setB2(selectedB2);
           onCompleted?.();
         }}
       >
