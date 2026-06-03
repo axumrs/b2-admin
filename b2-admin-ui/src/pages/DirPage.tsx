@@ -40,6 +40,8 @@ import {
 import { useState, lazy, useEffect } from "react";
 import UploadDialog from "@/components/Upload";
 import { useStateContext } from "@/contexts/StateContext";
+import { ConfirmDelete } from "@/components/Confirm";
+import { useQueryClient } from "@tanstack/react-query";
 const PreviewDialog = lazy(() => import("@/components/PreviewDialog"));
 const DownloadDialog = lazy(() => import("@/components/Download"));
 
@@ -47,10 +49,39 @@ export default function DirPage() {
   const [sp, _] = useSearchParams();
   const prefix = sp.get("prefix") || "";
 
-  const { $b2 } = useStateContext();
+  const queryClient = useQueryClient();
 
-  const { dirB2Api } = useApi();
+  const ctx = useStateContext();
+  const { $b2 } = ctx;
+
+  const { dirB2Api, delObjApi, delDirApi } = useApi();
   const { data, refetch } = dirB2Api(prefix);
+
+  const [delFile, setDelFile] = useState<B2File | null>(null);
+  const [delDir, setDelDir] = useState<B2Dir | null>(null);
+
+  const delObjMutation = delObjApi(ctx, () => {
+    setDelFile(null);
+    queryClient.invalidateQueries({ queryKey: ["b2-dir", prefix] });
+  });
+
+  const delDirMutation = delDirApi(ctx, () => {
+    setDelDir(null);
+    queryClient.invalidateQueries({ queryKey: ["b2-dir", prefix] });
+  });
+
+  const delObjHandler = () => {
+    if (delFile) {
+      ctx.$setLoading(true);
+      delObjMutation.mutate(delFile.path);
+    }
+  };
+  const delDirHandler = () => {
+    if (delDir) {
+      ctx.$setLoading(true);
+      delDirMutation.mutate(delDir.path);
+    }
+  };
 
   useEffect(() => {
     if ($b2) {
@@ -64,7 +95,7 @@ export default function DirPage() {
         <DirPageBreadcrumb prefix={prefix} />
         <div>
           <UploadDialog
-            prefix={prefix}
+            defaultPrefix={prefix}
             onClose={() => {
               refetch();
             }}
@@ -102,7 +133,7 @@ export default function DirPage() {
                 <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>
-                  <DirDownMenu b2dir={dir}>
+                  <DirDownMenu b2dir={dir} setDelItem={setDelDir}>
                     <Button variant="ghost">
                       <MoreIcon />
                     </Button>
@@ -117,7 +148,7 @@ export default function DirPage() {
                 <TableCell>
                   <div className="flex items-center gap-x-1">
                     <GuessFileIcon mime={file.mime} className="size-4" />
-                    <FileDownMenu file={file}>
+                    <FileDownMenu file={file} setDelItem={setDelFile}>
                       <button className="outline-0">{file.name}</button>
                     </FileDownMenu>
                   </div>
@@ -133,7 +164,7 @@ export default function DirPage() {
                 </TableCell>
                 <TableCell>{formatDateTime(file.last_modified)}</TableCell>
                 <TableCell>
-                  <FileDownMenu file={file}>
+                  <FileDownMenu file={file} setDelItem={setDelFile}>
                     <Button variant="ghost">
                       <MoreIcon />
                     </Button>
@@ -144,6 +175,23 @@ export default function DirPage() {
           )}
         </TableBody>
       </Table>
+
+      <ConfirmDelete
+        open={delFile !== null}
+        itemName={delFile?.name}
+        onCancel={() => setDelFile(null)}
+        onAction={() => delObjHandler()}
+      >
+        <button className="hidden">删除文件</button>
+      </ConfirmDelete>
+      <ConfirmDelete
+        open={delDir !== null}
+        itemName={delDir?.name}
+        onCancel={() => setDelDir(null)}
+        onAction={() => delDirHandler()}
+      >
+        <button className="hidden">删除目录</button>
+      </ConfirmDelete>
     </>
   );
 }
@@ -177,7 +225,10 @@ function GuessFileIcon({
 function FileDownMenu({
   file,
   children,
-}: { file: B2File } & React.ComponentProps<typeof DropdownMenu>) {
+  setDelItem,
+}: { file: B2File } & React.ComponentProps<typeof DropdownMenu> & {
+    setDelItem: (item: B2File) => void;
+  }) {
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={(o) => setOpen(o)}>
@@ -217,7 +268,12 @@ function FileDownMenu({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => {
+              setDelItem(file);
+            }}
+          >
             <DeleteIcon />
             删除
           </DropdownMenuItem>
@@ -229,7 +285,10 @@ function FileDownMenu({
 function DirDownMenu({
   b2dir,
   children,
-}: { b2dir: B2Dir } & React.ComponentProps<typeof DropdownMenu>) {
+  setDelItem,
+}: { b2dir: B2Dir } & React.ComponentProps<typeof DropdownMenu> & {
+    setDelItem: (item: B2Dir) => void;
+  }) {
   const [open, setOpen] = useState(false);
   return (
     <DropdownMenu open={open} onOpenChange={(o) => setOpen(o)}>
@@ -250,7 +309,10 @@ function DirDownMenu({
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem variant="destructive">
+          <DropdownMenuItem
+            variant="destructive"
+            onClick={() => setDelItem(b2dir)}
+          >
             <DeleteIcon />
             删除目录
           </DropdownMenuItem>

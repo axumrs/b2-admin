@@ -16,12 +16,13 @@ use crate::{ArcAppState, Error, Result, mw::B2Get, payload};
 
 pub async fn handler(
     B2Get(b2, b2_hash): B2Get,
-    State(_state): State<ArcAppState>,
+    State(state): State<ArcAppState>,
     Query(q): Query<payload::b2::FileQuery>,
     r: Request,
 ) -> Result<impl IntoResponse> {
+    let prefix = q.prefix();
     // 从请求头中获取B2的ID
-    let (head_obj, _) = b2.head_object(&q.prefix).await?;
+    let (head_obj, _) = b2.head_object(&prefix).await?;
     let size = match head_obj.content_length {
         Some(v) => v,
         None => return Err(Error::InvalidRequest("无法获取文件大小".into())),
@@ -33,11 +34,11 @@ pub async fn handler(
 
     let filename = head_obj
         .e_tag
-        .unwrap_or(q.prefix.clone())
+        .unwrap_or(prefix.clone())
         .trim_matches('"')
         .to_string();
 
-    if size > 1024 * 1 {
+    if size > state.cfg.b2_action.download.max_size as i64 {
         return Err(Error::InvalidRequest(format!(
             "文件大小{size}超过允许下载的最大值"
         )));
@@ -46,7 +47,7 @@ pub async fn handler(
     let loc_filename = format!("/tmp/b2-admin/{b2_hash}_{}", filename.replace("/", "_"));
 
     let mut async_output_file = File::create(&loc_filename).await?;
-    let mut response_data_stream = b2.get_object_stream(&q.prefix).await?;
+    let mut response_data_stream = b2.get_object_stream(&prefix).await?;
     while let Some(chunk) = response_data_stream.bytes().next().await {
         async_output_file.write_all(&chunk.unwrap()).await?;
     }

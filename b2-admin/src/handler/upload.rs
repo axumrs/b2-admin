@@ -94,16 +94,16 @@ pub async fn handler(
         }
     }
     // 上传到 B2
-    // let fm = file_format::FileFormat::from_file(&final_path)?;
-    // let content_type = fm.media_type();
-    // let b2_path = Path::new(&prefix);
-    // let b2_path = b2_path.join(&original_name);
-    // let b2_path = b2_path.to_str().unwrap();
+    let fm = file_format::FileFormat::from_file(&final_path)?;
+    let content_type = fm.media_type();
+    let b2_path = Path::new(&prefix);
+    let b2_path = b2_path.join(&original_name);
+    let b2_path = b2_path.to_str().unwrap();
 
-    // let mut b2_file = tokio::fs::File::open(&final_path).await?;
-    // let _ = b2
-    //     .put_object_stream_with_content_type(&mut b2_file, b2_path, content_type)
-    //     .await?;
+    let mut b2_file = tokio::fs::File::open(&final_path).await?;
+    let _ = b2
+        .put_object_stream_with_content_type(&mut b2_file, b2_path, content_type)
+        .await?;
 
     Ok(resp::ok(UploadResp {
         chunk_index,

@@ -1,4 +1,4 @@
-import { $get, $json_fetch } from "@/fetch";
+import { $del, $get, $json_fetch } from "@/fetch";
 import {
   useMutation,
   useQuery,
@@ -35,7 +35,33 @@ export default function useApi() {
       queryKey: ["b2-preview-text", prefix],
       queryFn: () => $get<string>(`/b2/preview-text`, { prefix }),
     });
-  const loginApi = (ctx: StateContextProps) => {
+  const delObjApi = (ctx: StateContextProps, callback: () => void) =>
+    useMutation({
+      mutationKey: ["b2-del"],
+      mutationFn: (prefix: string) =>
+        $del<ApiResponse<number>>(`/b2/del`, { prefix }),
+      onSuccess(resp) {
+        if (resp.code !== 0) {
+          ctx.$setErr(resp.msg);
+          setTimeout(() => ctx.$setErr(null), 3000);
+        }
+        callback();
+      },
+    });
+  const delDirApi = (ctx: StateContextProps, callback: () => void) =>
+    useMutation({
+      mutationKey: ["b2-del-dir"],
+      mutationFn: (prefix: string) =>
+        $del<ApiResponse<number>>(`/b2/del-dir`, { prefix }),
+      onSuccess(resp) {
+        if (resp.code !== 0) {
+          ctx.$setErr(resp.msg);
+          setTimeout(() => ctx.$setErr(null), 3000);
+        }
+        callback();
+      },
+    });
+  const loginApi = (ctx: StateContextProps, callback: () => void) => {
     return useMutation({
       mutationKey: ["login"],
       onSuccess(data) {
@@ -45,6 +71,7 @@ export default function useApi() {
           setTimeout(() => ctx.$setErr(null), 3000);
         } else {
           ctx.$setAuth(resp.data);
+          callback();
         }
       },
       mutationFn: (data: {
@@ -64,6 +91,8 @@ export default function useApi() {
       $useApi(previewImageApi, ...args),
     previewTextApi: (...args: Parameters<typeof previewTextApi>) =>
       $useApi(previewTextApi, ...args),
+    delObjApi,
+    delDirApi,
     loginApi,
   };
 }

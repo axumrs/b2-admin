@@ -19,8 +19,8 @@ import { useForm } from "@tanstack/react-form";
 
 import * as z from "zod";
 import useApi from "@/api/useApi";
-import { useEffect, useMemo, useState } from "react";
 import { useStateContext } from "@/contexts/StateContext";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.email("请输入正确的邮箱"),
@@ -32,13 +32,12 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const nav = useNavigate();
   const { loginApi } = useApi();
   const ctx = useStateContext();
-  const loginMutation = loginApi(ctx);
-  const loginResp = useMemo(
-    () => loginMutation.data?.data,
-    [loginMutation.data],
-  );
+  const loginMutation = loginApi(ctx, () => {
+    nav("/");
+  });
 
   const form = useForm({
     defaultValues: {
@@ -50,7 +49,6 @@ export function LoginForm({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log("login submit", value);
       loginMutation.mutate(value);
     },
   });

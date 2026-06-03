@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 export function SelectB2({
   isDialog = false,
@@ -24,7 +25,7 @@ export function SelectB2({
   const { $setB2, $b2 } = useStateContext();
 
   return (
-    <>
+    <div className="space-y-6">
       {!isDialog && <div>请选择B2桶</div>}
       <ul>
         {b2List?.map((item) => (
@@ -34,7 +35,6 @@ export function SelectB2({
               pressed={$b2?.hash === item.hash}
               onPressedChange={() => {
                 $setB2(item);
-                onCompleted?.();
               }}
             >
               {item.name}
@@ -43,7 +43,15 @@ export function SelectB2({
           </li>
         ))}
       </ul>
-    </>
+      <div
+        className="flex justify-end"
+        onClick={() => {
+          onCompleted?.();
+        }}
+      >
+        <Button>确定</Button>
+      </div>
+    </div>
   );
 }
 

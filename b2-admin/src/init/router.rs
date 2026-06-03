@@ -2,7 +2,7 @@ use axum::{
     Router,
     extract::DefaultBodyLimit,
     middleware::{from_extractor, from_extractor_with_state},
-    routing::{get, post},
+    routing::{delete, get, post},
 };
 
 use crate::{ArcAppState, handler, mw};
@@ -11,7 +11,9 @@ pub fn init(state: ArcAppState) -> Router {
     Router::new()
         .nest("/api", api_init(state.clone()))
         .nest("/api/auth", auth_init(state.clone()))
-        .layer(DefaultBodyLimit::max(10 * 1024 * 1024))
+        .layer(DefaultBodyLimit::max(
+            state.cfg.b2_action.upload.max_size as usize,
+        ))
 }
 
 fn api_init(state: ArcAppState) -> Router {
@@ -30,6 +32,8 @@ fn b2_init(state: ArcAppState) -> Router {
         .route("/preview-text", get(handler::b2::preview_text_file))
         .route("/download", get(handler::download::handler))
         .route("/upload", post(handler::upload::handler))
+        .route("/del", delete(handler::b2::del))
+        .route("/del-dir", delete(handler::b2::del_dir))
         .layer(from_extractor::<mw::B2Get>())
         .with_state(state)
 }

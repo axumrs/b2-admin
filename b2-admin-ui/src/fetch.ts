@@ -88,4 +88,8 @@ const _fetch = <T = any>(url: string, config?: fetchConfig) => {
 
 const $get = <T = any>(url: string, params?: any) =>
   _fetch<T>(url, { method: "GET", params });
-export { $json_fetch, $get, $blob_fetch };
+
+const $del = <T = any>(url: string, params?: any) =>
+  _fetch<T>(url, { method: "DELETE", params });
+
+export { $json_fetch, $get, $blob_fetch, $del };

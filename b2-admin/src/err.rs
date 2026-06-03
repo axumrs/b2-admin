@@ -42,7 +42,7 @@ impl Error {
     pub fn code(&self) -> http::StatusCode {
         match self {
             Self::InvalidRequest(_) => http::StatusCode::BAD_REQUEST,
-            Self::Unauthorized(_) => http::StatusCode::UNAUTHORIZED,
+            Self::Unauthorized(_) | Self::Jwt(_) => http::StatusCode::UNAUTHORIZED,
             _ => http::StatusCode::INTERNAL_SERVER_ERROR,
         }
     }

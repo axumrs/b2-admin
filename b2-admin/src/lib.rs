@@ -1,3 +1,5 @@
+#![recursion_limit = "1024"]
+
 pub mod b2;
 mod cfg;
 mod err;

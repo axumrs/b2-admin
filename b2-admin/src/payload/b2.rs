@@ -18,3 +18,9 @@ impl DirQuery {
 pub struct FileQuery {
     pub prefix: String,
 }
+
+impl FileQuery {
+    pub fn prefix(&self) -> String {
+        self.prefix.clone()
+    }
+}

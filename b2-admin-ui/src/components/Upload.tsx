@@ -17,15 +17,16 @@ import { DialogErrorAlert, DialogSuccessAlert } from "./DialogAlert";
 import { $json_fetch } from "@/fetch";
 
 export function Upload({
-  prefix = "",
+  defaultPrefix = "",
 }: {
-  prefix?: string;
+  defaultPrefix?: string;
   onCompleted?: () => void;
 }) {
   const [file, setFile] = useState<File | null>(null);
   const [progress, setProgress] = useState(0);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [uploadDone, setUploadDone] = useState(false);
+  const [prefix, setPrefix] = useState(defaultPrefix);
   const handleUpload = async () => {
     if (!file) return;
 
@@ -85,7 +86,8 @@ export function Upload({
                 <Input
                   id="prefix"
                   type="input"
-                  defaultValue={prefix}
+                  value={prefix}
+                  onChange={(e) => setPrefix(e.target.value)}
                   placeholder={`${prefix === "" || prefix === "/" ? "提示：当前为根目录，你可以将其值保持空白" : ""}`}
                 />
                 <FieldDescription>
