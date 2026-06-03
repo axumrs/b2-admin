@@ -26,11 +26,12 @@ export function Upload({
   const [progress, setProgress] = useState(0);
   const [errMsg, setErrMsg] = useState<string | null>(null);
   const [uploadDone, setUploadDone] = useState(false);
+
   const [prefix, setPrefix] = useState(defaultPrefix);
   const handleUpload = async () => {
     if (!file) return;
 
-    const chunkSize = 1 * 1024 * 1024; // 1MB 每块
+    const chunkSize = 1 * 1024; // 1kb 每块
     const totalChunks = Math.ceil(file.size / chunkSize);
     const fileId = nanoid(); // 生成唯一标识符
 
@@ -71,7 +72,7 @@ export function Upload({
         <DialogErrorAlert>{errMsg}</DialogErrorAlert>
       ) : (
         <>
-          {progress === 0 ? (
+          {progress <= 0 ? (
             <>
               <Field>
                 <FieldLabel htmlFor="file">文件</FieldLabel>

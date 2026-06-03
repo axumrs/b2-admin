@@ -11,6 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { DialogErrorAlert } from "./DialogAlert";
 import { FetchException, UnauthorizedException } from "@/types/errs";
+import { useStateContext } from "@/contexts/StateContext";
+import { useNavigate } from "react-router-dom";
 
 export function Download({
   prefix,
@@ -27,6 +29,8 @@ export function Download({
     () => errMsg === null && progress >= 100,
     [progress, errMsg],
   );
+  const { $auth, $b2 } = useStateContext();
+  const nav = useNavigate();
 
   useEffect(() => {
     downloadInChunks().then();
@@ -81,8 +85,9 @@ export function Download({
       const headRes = await fetch(url, {
         method: "HEAD",
         headers: {
-          "X-B2":
-            "e074509bb0f5873111d2c773c3f479d52b96dbce5ea7550853c4910fda8ac067",
+          "X-B2": $b2?.hash || "",
+          Authorization: `Bearer ${$auth?.token || ""}`,
+          "X-NONCE": $auth?.nonce || "",
         },
       });
       const fileSize = parseInt(headRes.headers.get("content-length")!, 10);
@@ -98,8 +103,9 @@ export function Download({
         const response = await fetch(url, {
           headers: {
             Range: `bytes=${start}-${end}`,
-            "X-B2":
-              "e074509bb0f5873111d2c773c3f479d52b96dbce5ea7550853c4910fda8ac067",
+            "X-B2": $b2?.hash || "",
+            Authorization: `Bearer ${$auth?.token || ""}`,
+            "X-NONCE": $auth?.nonce || "",
           },
         });
 
@@ -113,7 +119,11 @@ export function Download({
       // 尝试解析为JSON（出错的话，服务器会返回JSON数据）
       const chunksError = await tryGetChunksError(chunks);
       if (chunksError) {
-        setErrMsg(chunksError);
+        if (chunksError.startsWith("/LOGIN/")) {
+          nav("/login");
+        } else {
+          setErrMsg(chunksError);
+        }
         return;
       }
 
