@@ -34,6 +34,9 @@ pub enum Error {
     #[error("验证错误")]
     Validate(#[from] validator::ValidationErrors),
 
+    #[error("HTTP请求错误")]
+    Reqwest(#[from] reqwest::Error),
+
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }

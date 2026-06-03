@@ -81,6 +81,11 @@ export default function useApi() {
       }) => $json_fetch.post<ApiResponse<JwtAuth>>(`/auth/login`, data),
     });
   };
+  const turnstileSiteKeyApi = () =>
+    useQuery({
+      queryKey: ["turnstile-sitekey"],
+      queryFn: () => $get<string>("/turnstile/site-key"),
+    });
 
   return {
     listB2Api: (...args: Parameters<typeof listB2Api>) =>
@@ -94,6 +99,8 @@ export default function useApi() {
     delObjApi,
     delDirApi,
     loginApi,
+    turnstileSiteKeyApi: (...args: Parameters<typeof turnstileSiteKeyApi>) =>
+      $useApi(turnstileSiteKeyApi, ...args),
   };
 }
 

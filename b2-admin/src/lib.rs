@@ -1,5 +1,3 @@
-#![recursion_limit = "1024"]
-
 pub mod b2;
 mod cfg;
 mod err;
@@ -10,6 +8,7 @@ pub mod mw;
 pub mod payload;
 pub mod resp;
 mod state;
+pub mod turnstile;
 pub mod util;
 
 pub use cfg::*;

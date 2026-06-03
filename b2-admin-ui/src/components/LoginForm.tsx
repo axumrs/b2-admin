@@ -30,8 +30,9 @@ const formSchema = z.object({
 
 export function LoginForm({
   className,
+  siteKey,
   ...props
-}: React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & { siteKey: string }) {
   const nav = useNavigate();
   const { loginApi } = useApi();
   const ctx = useStateContext();
@@ -138,7 +139,7 @@ export function LoginForm({
                     <Field data-invalid={isInvalid}>
                       <FieldLabel htmlFor={field.name}>人机验证</FieldLabel>
                       <Turnstile
-                        sitekey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                        sitekey={siteKey}
                         onVerify={(token) => {
                           field.handleChange(token);
                         }}

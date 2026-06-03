@@ -10,6 +10,7 @@ pub struct Config {
     pub jwt: JwtConfig,
     pub b2_action: B2ActionConfig,
     pub admin: AdminConfig,
+    pub turnstile: TurnstileConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -33,6 +34,13 @@ pub struct B2ActionConfig {
     pub upload: B2ActionUploadConfig,
     pub download: B2ActionDownloadConfig,
     pub preview: B2ActionPreviewConfig,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TurnstileConfig {
+    pub site_key: String,
+    pub secret_key: String,
+    pub timeout: u8,
 }
 
 impl B2ActionConfig {

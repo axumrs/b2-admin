@@ -8,4 +8,7 @@ pub struct LoginForm {
 
     #[validate(length(min = 6, message = "请输入正确的密码"))]
     pub password: String,
+
+    #[validate(length(min = 21, message = "请完成人机验证"))]
+    pub captcha: String,
 }

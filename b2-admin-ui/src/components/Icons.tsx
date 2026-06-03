@@ -16,6 +16,7 @@ import {
   AlignJustify as ListIcon,
   Upload as UploadIcon,
   LogOut as LogoutIcon,
+  Package as BucketIcon,
 } from "lucide-react";
 
 export {
@@ -36,4 +37,5 @@ export {
   ListIcon,
   UploadIcon,
   LogoutIcon,
+  BucketIcon,
 };

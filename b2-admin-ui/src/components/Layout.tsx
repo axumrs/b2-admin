@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate, Navigate } from "react-router-dom";
 import Container from "./Container";
 import {
   NavigationMenu,
@@ -10,13 +10,13 @@ import {
 import { ModeToggle } from "./ModeToggle";
 import { Button } from "./ui/button";
 import { useStateContext } from "@/contexts/StateContext";
-import { Navigate } from "react-router-dom";
 
 import SelectB2Dialog from "./SelectB2";
-import { LogoutIcon } from "./Icons";
+import { BucketIcon, LogoutIcon } from "./Icons";
 import { Confirm } from "./Confirm";
 
 export default function Layout() {
+  const nav = useNavigate();
   const { $auth, $b2, $setAuth } = useStateContext();
   if (!$auth) {
     return <Navigate to="/login" />;
@@ -44,23 +44,30 @@ export default function Layout() {
 
             <NavigationMenu>
               <NavigationMenuList>
-                <NavigationMenuItem>
+                {/* <NavigationMenuItem>
                   <NavigationMenuLink
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
                     <Button variant="ghost" asChild>
-                      <Link to="/">控制面板</Link>
+                      <Link to="/">对象浏览</Link>
                     </Button>
                   </NavigationMenuLink>
-                </NavigationMenuItem>
+                </NavigationMenuItem> */}
                 <NavigationMenuItem>
                   <NavigationMenuLink
                     asChild
                     className={navigationMenuTriggerStyle()}
                   >
-                    <SelectB2Dialog>
-                      <Button variant="ghost">B2</Button>
+                    <SelectB2Dialog
+                      onClose={() => {
+                        nav("/");
+                      }}
+                    >
+                      <Button variant="ghost">
+                        <BucketIcon />
+                        当前配置：{$b2.name || "未选择"}
+                      </Button>
                     </SelectB2Dialog>
                   </NavigationMenuLink>
                 </NavigationMenuItem>

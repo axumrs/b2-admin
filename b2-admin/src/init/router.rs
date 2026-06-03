@@ -11,6 +11,7 @@ pub fn init(state: ArcAppState) -> Router {
     Router::new()
         .nest("/api", api_init(state.clone()))
         .nest("/api/auth", auth_init(state.clone()))
+        .nest("/api/turnstile", turnstile_init(state.clone()))
         .layer(DefaultBodyLimit::max(
             state.cfg.b2_action.upload.max_size as usize,
         ))
@@ -48,5 +49,11 @@ fn auth_init(state: ArcAppState) -> Router {
     Router::new()
         .route("/login", post(handler::auth::login))
         .layer(from_extractor::<mw::IpAndUserAgent>())
+        .with_state(state)
+}
+
+fn turnstile_init(state: ArcAppState) -> Router {
+    Router::new()
+        .route("/site-key", get(handler::captcha::site_key))
         .with_state(state)
 }

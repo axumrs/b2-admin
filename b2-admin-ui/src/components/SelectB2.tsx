@@ -28,7 +28,7 @@ export function SelectB2({
   return (
     <div className="space-y-6">
       {!isDialog && <div>请选择B2桶</div>}
-      <ul>
+      <ul className="flex items-center gap-x-2">
         {b2List?.map((item) => (
           <li key={item.hash}>
             <Toggle

@@ -1,7 +1,7 @@
 use axum::{Json, extract::State};
 use validator::Validate;
 
-use crate::{ArcAppState, Error, Result, jwt, mw, payload, resp};
+use crate::{ArcAppState, Error, Result, jwt, mw, payload, resp, turnstile};
 
 #[derive(serde::Serialize)]
 pub struct LoginResp {
@@ -14,6 +14,16 @@ pub async fn login(
     Json(frm): Json<payload::auth::LoginForm>,
 ) -> Result<Json<resp::Resp<LoginResp>>> {
     frm.validate()?;
+
+    if !turnstile::verify(
+        &state.cfg.turnstile.secret_key,
+        state.cfg.turnstile.timeout,
+        &frm.captcha,
+    )
+    .await?
+    {
+        return Err(Error::InvalidRequest("人机验证失败".into()));
+    }
 
     if !(frm.email == state.cfg.admin.email && frm.password == state.cfg.admin.password) {
         return Err(Error::InvalidRequest("用户名或密码错误".into()));
