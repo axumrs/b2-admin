@@ -3,8 +3,8 @@ import { lazy } from "react";
 
 const Layout = lazy(() => import("@/components/Layout"));
 const DirPage = lazy(() => import("@/pages/DirPage"));
-const SelectB2Page = lazy(() => import("@/pages/SelectB2Page"));
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
+const LogoutPage = lazy(() => import("@/pages/LogoutPage"));
 
 export const router = createRouter([
   {
@@ -15,14 +15,14 @@ export const router = createRouter([
         index: true,
         element: <DirPage />,
       },
-      {
-        path: "select-b2",
-        element: <SelectB2Page />,
-      },
     ],
   },
   {
     path: "login",
     element: <LoginPage />,
+  },
+  {
+    path: "logout",
+    element: <LogoutPage />,
   },
 ]);

@@ -13,9 +13,11 @@ import { useStateContext } from "@/contexts/StateContext";
 import { Navigate } from "react-router-dom";
 
 import SelectB2Dialog from "./SelectB2";
+import { LogoutIcon } from "./Icons";
+import { Confirm } from "./Confirm";
 
 export default function Layout() {
-  const { $auth, $b2 } = useStateContext();
+  const { $auth, $b2, $setAuth } = useStateContext();
   if (!$auth) {
     return <Navigate to="/login" />;
   }
@@ -73,6 +75,22 @@ export default function Layout() {
                   className={navigationMenuTriggerStyle()}
                 >
                   <ModeToggle />
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className={navigationMenuTriggerStyle()}
+                >
+                  <Confirm
+                    title="退出登录"
+                    description="确认退出本次登录吗？"
+                    onAction={() => $setAuth(null)}
+                  >
+                    <Button variant="ghost" size="icon">
+                      <LogoutIcon />
+                    </Button>
+                  </Confirm>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>

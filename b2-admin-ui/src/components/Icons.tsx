@@ -15,6 +15,7 @@ import {
   Ellipsis as MoreIcon,
   AlignJustify as ListIcon,
   Upload as UploadIcon,
+  LogOut as LogoutIcon,
 } from "lucide-react";
 
 export {
@@ -34,4 +35,5 @@ export {
   MoreIcon,
   ListIcon,
   UploadIcon,
+  LogoutIcon,
 };
