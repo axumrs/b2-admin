@@ -88,7 +88,10 @@ export default function SelectB2Dialog({
             <div className="my-3">
               <SelectB2
                 isDialog
-                onCompleted={() => setOpen(false)}
+                onCompleted={() => {
+                  setOpen(false);
+                  onClose?.();
+                }}
                 {...props}
               />
             </div>

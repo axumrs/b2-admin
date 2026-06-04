@@ -13,12 +13,12 @@ import { DialogErrorAlert } from "./DialogAlert";
 import { FetchException, UnauthorizedException } from "@/types/errs";
 import { useStateContext } from "@/contexts/StateContext";
 import { useNavigate } from "react-router-dom";
-import { DownloadIcon } from "@/components/Icons";
+import { DownloadIcon, CheckIcon } from "@/components/Icons";
 
 export function Download({
   prefix,
   name,
-  onCompleted,
+  // onCompleted,
   cfg,
 }: {
   prefix: string;
@@ -39,11 +39,11 @@ export function Download({
     downloadInChunks().then();
   }, []);
 
-  useEffect(() => {
-    if (isCompleted) {
-      onCompleted?.();
-    }
-  }, [isCompleted]);
+  // useEffect(() => {
+  //   if (isCompleted) {
+  //     onCompleted?.();
+  //   }
+  // }, [isCompleted]);
 
   const tryGetChunksError = async (chunks: BlobPart[]) => {
     // 尝试解析为JSON（出错的话，服务器会返回JSON数据）
@@ -164,20 +164,28 @@ export function Download({
 
   return (
     <div className="space-y-3">
-      {isCompleted && <div>下载完成</div>}
-      {errMsg ? (
-        <DialogErrorAlert>{errMsg}</DialogErrorAlert>
+      {isCompleted ? (
+        <div className="flex  items-center gap-2">
+          <CheckIcon className="text-green-600" />
+          下载完成
+        </div>
       ) : (
         <>
-          <div>
-            <Field className="w-full max-w-sm">
-              <FieldLabel htmlFor="progress-upload">
-                <span>下载进度</span>
-                <span className="ml-auto">{progress.toFixed(2)}%</span>
-              </FieldLabel>
-              <Progress max={100} value={progress} id="progress-upload" />
-            </Field>
-          </div>
+          {errMsg ? (
+            <DialogErrorAlert>{errMsg}</DialogErrorAlert>
+          ) : (
+            <>
+              <div>
+                <Field className="w-full max-w-sm">
+                  <FieldLabel htmlFor="progress-upload">
+                    <span>下载进度</span>
+                    <span className="ml-auto">{progress.toFixed(2)}%</span>
+                  </FieldLabel>
+                  <Progress max={100} value={progress} id="progress-upload" />
+                </Field>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

@@ -18,6 +18,7 @@ import {
   Upload as UploadIcon,
   LogOut as LogoutIcon,
   Package as BucketIcon,
+  RefreshCcw as RefreshIcon,
 } from "lucide-react";
 
 export {
@@ -40,4 +41,5 @@ export {
   LogoutIcon,
   BucketIcon,
   PreviewOffIcon,
+  RefreshIcon,
 };

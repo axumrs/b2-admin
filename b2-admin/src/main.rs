@@ -1,5 +1,4 @@
-use b2_admin::{AppState, Config, b2, init};
-use tokio::net::TcpListener;
+use b2_admin::{Config, init, job};
 
 fn main() -> anyhow::Result<()> {
     let rt = tokio::runtime::Builder::new_multi_thread()
@@ -14,67 +13,25 @@ async fn async_main() -> anyhow::Result<()> {
     let cfg = Config::from_toml()?.to_arc();
     init::log(&cfg.log);
 
-    mkdir(&cfg).await;
+    job::mkdir_worker(cfg.clone()).await?;
 
-    let web_addr = cfg.web_addr.clone();
-    let listener = TcpListener::bind(&web_addr).await?;
+    let mut web_handler = tokio::spawn(job::web_worker(cfg.clone()));
+    let mut clean_handler = tokio::spawn(job::clean_worker(cfg.clone()));
 
-    b2::share::from_cfg(&cfg.b2s).await;
-
-    let state = AppState::new_arc(cfg);
-
-    let app = init::router(state);
-
-    tracing::info!("服务监听于：{web_addr}");
-    axum::serve(listener, app).await?;
-    Ok(())
-}
-
-async fn mkdir(cfg: &Config) {
-    let update_tmp_dir = cfg.b2_action.upload_tmp_dir();
-    let upload_tmp_part_dir = cfg.b2_action.upload_tmp_part_dir();
-    let down_tmp_dir = cfg.b2_action.download_tmp_dir();
-    let preview_tmp_dir = cfg.b2_action.preview_tmp_dir();
-
-    tokio::fs::create_dir_all(&update_tmp_dir).await.unwrap();
-    tokio::fs::create_dir_all(&upload_tmp_part_dir)
-        .await
-        .unwrap();
-    tokio::fs::create_dir_all(&down_tmp_dir).await.unwrap();
-    tokio::fs::create_dir_all(&preview_tmp_dir).await.unwrap();
-}
-
-#[cfg(test)]
-mod tests {
-    use b2_admin::Config;
-    use tokio_stream::StreamExt;
-
-    #[tokio::test]
-    async fn test_b2() {
-        let cfg = Config::from_toml().unwrap();
-        let b2 = cfg.b2s.first().unwrap();
-        let cred = s3::creds::Credentials {
-            access_key: Some(b2.key_id.clone()),
-            secret_key: Some(b2.app_id.clone()),
-            security_token: None,
-            session_token: None,
-            expiration: None,
-        };
-        let bucket =
-            s3::Bucket::new(&b2.bucket_name, b2.endpoint.as_str().parse().unwrap(), cred).unwrap();
-
-        // let ls = bucket.list(format!(""), Some("/".into())).await.unwrap(); // 根目录
-        // let ls = bucket
-        //     .list(format!("database/20260520/"), Some("/".into())) // 子目录
-        //     .await
-        //     .unwrap();
-        // for item in ls.iter() {
-        //     println!("{item:?}");
-        // }
-
-        let mut r = bucket.get_object_stream("/axum.eu.org.png").await.unwrap();
-        while let Some(chunk) = r.bytes().next().await {
-            println!("{:?}", chunk)
+    tokio::select! {
+        _ = &mut clean_handler => {
+            tracing::info!("clean worker 已退出");
+            web_handler.abort();
+        }
+        _ = &mut web_handler => {
+            tracing::info!("web worker 已退出");
+            clean_handler.abort();
+        }
+        _ = tokio::signal::ctrl_c() => {
+            tracing::info!("收到 Ctrl+C 信号");
+            clean_handler.abort();
+            web_handler.abort();
         }
     }
+    Ok(())
 }

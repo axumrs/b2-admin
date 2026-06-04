@@ -40,6 +40,9 @@ pub enum Error {
     #[error("HTTP请求错误")]
     Reqwest(#[from] reqwest::Error),
 
+    #[error("HTTP请求头错误")]
+    ReqwestHeaderValue(#[from] reqwest::header::InvalidHeaderValue),
+
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }

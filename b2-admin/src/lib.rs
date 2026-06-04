@@ -4,6 +4,7 @@ mod cfg;
 mod err;
 pub mod handler;
 pub mod init;
+pub mod job;
 pub mod jwt;
 pub mod mw;
 pub mod payload;

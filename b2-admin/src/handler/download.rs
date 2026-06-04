@@ -48,12 +48,17 @@ pub async fn handler(
         )));
     }
 
-    let loc_filename = format!("/tmp/b2-admin/{b2_hash}_{}", filename.replace("/", "_"));
+    let loc_file_id = xid::new().to_string();
+
+    let loc_filename = state.cfg.b2_action.download_tmp_dir().join(format!(
+        "{b2_hash}_{loc_file_id}_{}",
+        filename.replace("/", "_")
+    ));
 
     let mut async_output_file = File::create(&loc_filename).await?;
     let mut response_data_stream = b2.get_object_stream(&prefix).await?;
     while let Some(chunk) = response_data_stream.bytes().next().await {
-        async_output_file.write_all(&chunk.unwrap()).await?;
+        async_output_file.write_all(&chunk?).await?;
     }
 
     let file_path = Path::new(&loc_filename);
@@ -62,7 +67,7 @@ pub async fn handler(
         Err(_) => return Ok((StatusCode::NOT_FOUND, "File not found").into_response()),
     };
 
-    let file_len = file_path.metadata().unwrap().len();
+    let file_len = file_path.metadata()?.len();
 
     // 解析 Range 头部 (如：bytes=0-1024)
     if let Some(range_header) = r.headers().get(header::RANGE) {
@@ -82,18 +87,14 @@ pub async fn handler(
                 let stream = ReaderStream::new(tokio::io::AsyncReadExt::take(file, sub_len));
 
                 let mut res = Response::new(Body::from_stream(stream));
-                res.headers_mut().insert(
-                    header::CONTENT_TYPE,
-                    "application/octet-stream".parse().unwrap(),
-                );
+                res.headers_mut()
+                    .insert(header::CONTENT_TYPE, "application/octet-stream".parse()?);
                 res.headers_mut().insert(
                     header::CONTENT_RANGE,
-                    format!("bytes {}-{}/{}", start, end, file_len)
-                        .parse()
-                        .unwrap(),
+                    format!("bytes {}-{}/{}", start, end, file_len).parse()?,
                 );
                 res.headers_mut()
-                    .insert(header::ACCEPT_RANGES, "bytes".parse().unwrap());
+                    .insert(header::ACCEPT_RANGES, "bytes".parse()?);
                 *res.status_mut() = StatusCode::PARTIAL_CONTENT;
                 return Ok(res);
             }
@@ -103,16 +104,12 @@ pub async fn handler(
     // 不支持 Range 或者全量下载请求
     let stream = ReaderStream::new(file);
     let mut res = Response::new(Body::from_stream(stream));
-    res.headers_mut().insert(
-        header::CONTENT_TYPE,
-        "application/octet-stream".parse().unwrap(),
-    );
-    res.headers_mut().insert(
-        header::CONTENT_LENGTH,
-        file_len.to_string().parse().unwrap(),
-    );
     res.headers_mut()
-        .insert(header::ACCEPT_RANGES, "bytes".parse().unwrap());
+        .insert(header::CONTENT_TYPE, "application/octet-stream".parse()?);
+    res.headers_mut()
+        .insert(header::CONTENT_LENGTH, file_len.to_string().parse()?);
+    res.headers_mut()
+        .insert(header::ACCEPT_RANGES, "bytes".parse()?);
     Ok(res)
 }
 

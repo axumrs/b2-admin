@@ -79,7 +79,8 @@ pub async fn handler(
 
     let final_dir = &state.cfg.b2_action.upload_tmp_dir();
     fs::create_dir_all(final_dir)?;
-    let final_path = final_dir.join(format!("{b2_hash}_{original_name}"));
+    let final_file_id = xid::new().to_string();
+    let final_path = final_dir.join(format!("{b2_hash}_{final_file_id}_{original_name}"));
     let is_last_chunk = chunk_index == total_chunks - 1;
 
     // 检查是否是最后一块，若是，则执行文件合并
@@ -108,6 +109,9 @@ pub async fn handler(
     let _ = b2
         .put_object_stream_with_content_type(&mut b2_file, b2_path, content_type)
         .await?;
+
+    // 清理临时文件
+    fs::remove_file(&final_path)?;
 
     Ok(resp::ok(UploadResp {
         chunk_index,

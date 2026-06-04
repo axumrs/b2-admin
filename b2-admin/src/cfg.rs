@@ -12,6 +12,7 @@ pub struct Config {
     pub b2_action: B2ActionConfig,
     pub admin: AdminConfig,
     pub turnstile: TurnstileConfig,
+    pub clean: CleanConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -110,6 +111,12 @@ impl B2ActionPreviewConfig {
 pub struct AdminConfig {
     pub email: String,
     pub password: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct CleanConfig {
+    pub interval: u32,
+    pub max_minutes: u32,
 }
 
 impl Config {

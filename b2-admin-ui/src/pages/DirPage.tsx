@@ -23,6 +23,7 @@ import {
   MoreIcon,
   ListIcon,
   UploadIcon,
+  RefreshIcon,
 } from "@/components/Icons";
 import type React from "react";
 import { formatDateTime } from "@/lib/dt";
@@ -97,7 +98,16 @@ export default function DirPage() {
     <>
       <div className="flex justify-between items-center gap-x-4 my-3">
         <DirPageBreadcrumb prefix={prefix} />
-        <div>
+        <div className="flex items-center gap-x-2">
+          <Button
+            variant="secondary"
+            onClick={() => {
+              refetch();
+            }}
+          >
+            <RefreshIcon />
+            刷新
+          </Button>
           <UploadDialog
             defaultPrefix={prefix}
             onClose={() => {
