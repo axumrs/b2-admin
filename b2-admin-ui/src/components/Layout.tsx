@@ -64,9 +64,12 @@ export default function Layout() {
                         nav("/");
                       }}
                     >
-                      <Button variant="ghost">
-                        <BucketIcon />
-                        当前配置：{$b2.name || "未选择"}
+                      <Button
+                        variant="ghost"
+                        className="ring-1 ring-inset ring-accent-foreground/50 group"
+                      >
+                        <BucketIcon className="animate-pulse group-hover:animate-none" />
+                        当前B2桶：{$b2.name || "未选择"}
                       </Button>
                     </SelectB2Dialog>
                   </NavigationMenuLink>

@@ -53,3 +53,7 @@ password = "foobar"
 site_key = '1x00000000000000000000AA'
 secret_key = '1x0000000000000000000000000000000AA'
 timeout = 10
+
+[clean]
+interval = 360
+max_minutes = 15
